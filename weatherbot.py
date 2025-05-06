@@ -29,7 +29,7 @@ model = OpenAIModel(
     provider=OpenAIProvider(
         base_url='https://openrouter.ai/api/v1',
         #api_key=os.getenv('OPENROUTER_API_KEY'),
-        api_key='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',
+        api_key=os.getenv("OPENROUTER_API_KEY"),
         http_client=httpx.AsyncClient(verify=False)
     ),
 )
@@ -46,6 +46,7 @@ weather_agent = Agent(
     deps_type=Deps,
     retries=2,
     instrument=True,
+    
 )
 
 
@@ -140,9 +141,6 @@ async def get_weather(ctx: RunContext[Deps], lat: float, lng: float) -> dict[str
 
 async def main():
     async with AsyncClient(verify=False) as client:
-        os.environ['WEATHER_API_KEY'] = 'CXFQvLtyIHVh3LYkc4TJRQ7TLgMRKH4o'
-        os.environ['GEO_API_KEY'] = '6819e8a35f8ad098088169tdxea0f01'
-        os.environ['OPENROUTER_API_KEY'] = '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'
         # create a free API key at https://www.tomorrow.io/weather-api/
         weather_api_key = os.getenv('WEATHER_API_KEY')
         # create a free API key at https://geocode.maps.co/
@@ -151,7 +149,7 @@ async def main():
             client=client, weather_api_key=weather_api_key, geo_api_key=geo_api_key
         )
         result = await weather_agent.run(
-            'What is the weather like in London and in Wiltshire?', deps=deps
+            'What is the weather like in Hong Kong and in Tokyo?', deps=deps
         )
         # debug(result)
         print('Response:', result.output)
