@@ -5,7 +5,7 @@ import os
 import httpx
 import chainlit as cl
 
-os.environ["OPENROUTER_API_KEY"] = "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"
+os.environ["OPENROUTER_API_KEY"] = "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"
 
 # Setup the model using pydantic_ai with OpenRouter
 model = OpenAIModel(
