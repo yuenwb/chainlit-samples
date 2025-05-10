@@ -1,37 +1,54 @@
-from openai import AsyncOpenAI
+from pydantic_ai import Agent    # insall pydantic-ai-slim[openai]
+from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.providers.openai import OpenAIProvider
 import os
-import chainlit as cl
 import httpx
+import chainlit as cl
 
-# client = AsyncOpenAI()
-client = AsyncOpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    http_client = httpx.AsyncClient(verify=False)
+os.environ["OPENROUTER_API_KEY"] = "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"
+
+# Setup the model using pydantic_ai with OpenRouter
+model = OpenAIModel(
+    "google/gemini-2.0-flash-lite-001",
+    # "openai/gpt-3.5-turbo",
+    provider=OpenAIProvider(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.getenv("OPENROUTER_API_KEY"),
+        http_client=httpx.AsyncClient(verify=False),
+    )
 )
 
-# Instrument the OpenAI client
-cl.instrument_openai()
+# Add default parameters like temperature inside the Agent
+agent = Agent(
+    model=model,
+    system_prompt="You are a helpful bot, you always reply in Traditional Chinese",
+    default_params={
+        "temperature": 0,
+        "stream": True,
+        "tools": []  # Prevents validation error
+    }
+    
+)
 
-settings = {
-    "model": "google/gemini-2.0-flash-lite-001",
-    "temperature": 0,
-    # ... more settings
-}
-
+# Below code could straming
 @cl.on_message
 async def on_message(message: cl.Message):
-    response = await client.chat.completions.create(
-        messages=[
-            {
-                "content": "You are a helpful bot, you always reply in Traditional Chinese",
-                "role": "system"
-            },
-            {
-                "content": message.content,
-                "role": "user"
-            }
-        ],
-        **settings
-    )
-    await cl.Message(content=response.choices[0].message.content).send()
+    msg = cl.Message(content="")
+    await msg.send()
+
+    async with agent.iter(message.content) as run:
+        async for node in run:
+            if agent.is_model_request_node(node):
+                async with node.stream(run.ctx) as stream:
+                    async for event in stream:
+                        if hasattr(event, 'delta') and hasattr(event.delta, 'content_delta'):
+                            msg.content += event.delta.content_delta
+                            await msg.update()
+
+"""
+# Below code is not straming
+@cl.on_message
+async def on_message(message: cl.Message):
+    response = await agent.run(message.content)
+    await cl.Message(content=response.output).send()
+"""
