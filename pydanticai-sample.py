@@ -4,7 +4,7 @@ from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
 import httpx
 
-os.environ["OPENROUTER_API_KEY"] = "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"
+os.environ["OPENROUTER_API_KEY"] = "xxxx"
 
 model = OpenAIModel(
     'google/gemini-2.0-flash-lite-001',
