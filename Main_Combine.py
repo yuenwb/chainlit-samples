@@ -12,9 +12,9 @@ from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
 import chainlit as cl
 
-os.environ["OPENROUTER_API_KEY"] = "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"       # For OpenRouter model access
-os.environ["WEATHER_API_KEY"] = "dmrt4Mt6gTiCAKtNkHTDwcGCX4s273s3"           # For Tomorrow.io weather API
-os.environ["GEO_API_KEY"] = "681fec2606607887786105yof4f1da3"               # For geolocation (maps.co)
+os.environ["OPENROUTER_API_KEY"] = "xxxx"       # For OpenRouter model access
+os.environ["WEATHER_API_KEY"] = "yyyy"           # For Tomorrow.io weather API
+os.environ["GEO_API_KEY"] = "zzzzz"               # For geolocation (maps.co)
 
 # Setup the model using pydantic_ai with OpenRouter
 model = OpenAIModel(
